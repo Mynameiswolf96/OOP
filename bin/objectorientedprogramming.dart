@@ -1,4 +1,6 @@
-import 'package:objectorientedprogramming/objectorientedprogramming.dart' as objectorientedprogramming;
+import 'package:objectorientedprogramming/objectorientedprogramming.dart'
+    as objectorientedprogramming;
+import 'package:test/test.dart';
 
 //пример использования интерфейсов
 abstract interface class Action {
@@ -32,7 +34,7 @@ class Cat implements Action {
   }
 }
 
-class Man extends Action {
+class Man implements Action {
   String sayMan;
   int ageMan;
   String moveMan;
@@ -55,7 +57,7 @@ class Man extends Action {
   }
 }
 
-class Sparrow extends Action {
+class Sparrow implements Action {
   String saySparrow;
   int ageSparrow;
   String moveSparrow;
@@ -96,13 +98,11 @@ class Child extends Human {
     print(babySay);
   }
 
+  int get ageBaby => age;
+
   @override
   void years() {
-    if (age > 0 || age < 12) {
-      print("Child");
-    } else {
-      return;
-    }
+    print(ageBaby);
   }
 }
 
@@ -118,13 +118,11 @@ class Adult extends Human {
     print(adultSay);
   }
 
+  int get ageAdult => age;
+
   @override
   void years() {
-    if (age > 30 || age < 60) {
-      print("Human is adult, he's age: $age");
-    } else {
-      return;
-    }
+    print(age);
   }
 
   int yearSalary() {
@@ -154,7 +152,12 @@ class Employe extends Person {
   int _number;
 
   Employe(
-      this._number, this._snils, super._firstName, super._age, super._lastName);
+    this._number,
+    this._snils,
+    super._firstName,
+    super._age,
+    super._lastName,
+  );
 
   @override
   void greeting() {
@@ -167,8 +170,15 @@ class Developer extends Employe {
   String _language;
   String _lvl;
 
-  Developer(this._language, this._lvl, super._firstName, super._age,
-      super._lastName, super._snils, super._number);
+  Developer(
+    this._language,
+    this._lvl,
+    super._firstName,
+    super._age,
+    super._lastName,
+    super._snils,
+    super._number,
+  );
 
   void greeting() {
     print(
@@ -183,6 +193,8 @@ class Monkey {
 
   Monkey(this.age, this.name);
 
+  int get ageMonkey => age;
+
   @override
   String toString() {
 // TODO: implement toString
@@ -190,35 +202,79 @@ class Monkey {
   }
 }
 
-class AgeCalculate extends Monkey {
+class AgeCalculate {
 // класс отвечает за перевод возраста мартышки в возраст других существ
-  AgeCalculate(super.age, super.name);
+  Monkey monkey;
 
-  double ageTranslationToHuman(int age) {
-    return age * 1.5;
+  AgeCalculate(this.monkey);
+
+  double ageTranslationToHuman(Monkey monkey) {
+    return monkey.age * 1.5;
+  }
+
+  double get humanAge => ageTranslationToHuman(monkey);
+}
+
+class PrintAgeOtherCreature {
+//класс отвечает за вывод результатов перевода возраста
+  AgeCalculate ageCalculate;
+  Monkey monkey;
+
+  PrintAgeOtherCreature(this.ageCalculate, this.monkey);
+
+  void printAge(AgeCalculate ageCalculate) {
+    print('На человеческий возраст будет ${ageCalculate.humanAge}');
   }
 }
 
-class PrintAgeOtherCreature extends AgeCalculate {
-//класс отвечает за вывод результатов перевода возраста
-  PrintAgeOtherCreature(super.age, super.name);
+//Open-Closed principe
+abstract interface class InformationAboutCar {
+  void informationAboutCar();
+}
 
-  double get ageCreature {
-    return ageTranslationToHuman(age);
-  }
+abstract class Car implements InformationAboutCar {
+  int _speed;
 
-  String get nameCreature {
-    return name;
-  }
+  Car(this._speed);
 
   @override
-  String toString() {
-// TODO: implement toString
-    return 'Человеку по имени $nameCreature будет $ageCreature';
+  void informationAboutCar() {}
+}
+
+class Mazda extends Car {
+  Mazda(super._speed);
+
+  @override
+  void informationAboutCar() {
+    print('Мазда едет со скоростью $_speed');
   }
 }
 
-//Пример Open-Closed principe и Liskov Substitution
+class Honda extends Car {
+  Honda(super._speed);
+
+  @override
+  void informationAboutCar() {
+    print('Хонда едет со скоростью $_speed');
+  }
+}
+
+class Character {
+  Car car;
+  String name;
+
+  Character(this.name, this.car);
+
+  changeCar(Car newCar) {
+    car = newCar;
+  }
+
+  inform() {
+    car.informationAboutCar();
+  }
+}
+
+//Пример  Liskov Substitution
 abstract class Shape {
   double getArea();
 }
@@ -370,22 +426,22 @@ void main() {
   Developer developer = Developer("Dart", 'Junior', 23, 23, 'Zdor', 15, 'Den');
   List<Person> list = [person, employe, developer];
   messGreeting(list);
-//экземпляры классов для примера single responsibility
+//экземпляры классов для примера single responsibility. Каждый класс несёт единую ответственность. Monkey: характеристики мартышки, AgeCalculate:
+// перевод возраста мартышки в возраст другой сущности, PrintAgeOtherCreature выводит результат перевода возраста.
   Monkey monkey = Monkey(20, 'Анфиса');
+  AgeCalculate ageCalculate = AgeCalculate(monkey);
   PrintAgeOtherCreature printAgeOtherCreature =
-  PrintAgeOtherCreature(10, "volkov");
-  print(printAgeOtherCreature.toString());
-//экземпляры классов для примера open-closed responsibility В этом примере, если мы хотим добавить новый тип фигуры, например, треугольник,
-// мы можем создать новый класс Triangle, реализовать метод getArea() и добавить его в список shapes, без необходимости изменять код AreaCalculator
-  Rectangle rectangle = Rectangle(width: 5, height: 10);
-  Circle circle = Circle(radius: 7);
+      PrintAgeOtherCreature(ageCalculate, monkey);
+  printAgeOtherCreature.printAge(ageCalculate);
 
-  List<Shape> shapes = [rectangle, circle];
+//экземпляры классов для примера open-closed responsibility
+  Mazda mazda = Mazda(100);
+  Character character = Character('Valera', mazda);
+  character.inform();
 
-  AreaCalculator areaCalculator = AreaCalculator();
-  double totalArea = areaCalculator.calculateTotalArea(shapes);
-
-  print('Total area: $totalArea');
+  Honda honda = Honda(60);
+  character.changeCar(honda);
+  character.inform();
 
 //экземпляры классов для примера Liskov Substitution. В данном примере показано, что Rectangle и Square могут использоваться вместо
 // Shape т.к. они корректно реализовывают унаследованный метод getArea.
@@ -400,7 +456,7 @@ void main() {
   knife.printInformation();
 //экземерляры класса для примера Dependency inversion principle.класс Feeder зависит от абстракции Animal, а не от конкретных реализаций,
 // таким образом, модули могут быть легко изменены или заменены новыми реализациями животных
- // без внесения изменений в класс Feeder.
+  // без внесения изменений в класс Feeder.
   Animal cat = Kitty();
   Feeder catFeeder = Feeder(cat);
   catFeeder.giveFood();
@@ -408,7 +464,7 @@ void main() {
   Animal dog = Dog();
   Feeder dogFeeder = Feeder(dog);
   dogFeeder.giveFood();
-  }
+}
 
 //глобальная функция для примера Liskov Substitution
 void printArea(Shape shape) {
